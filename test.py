@@ -1,22 +1,34 @@
 import unittest
 
-def textNaVelkaPismena(text):
-    return text.upper()
+class Hrac:
+    def __init__(self, vek, jmeno="Honza"):
+        self.__vek = vek
+        self.__jmeno = jmeno
 
-class TestTextNaVelkePismena(unittest.TestCase):
+    def get_vek(self):
+        return self.vek
 
-    def test_prevod_slova(self):
-        self.assertEqual(textNaVelkaPismena("abc"), "ABC")
+    def set_vek(self, vek):
+        self.__vek = vek
+
+    def get_jmeno(self):
+        return self.__jmeno
+
+    def set_jmeno(self, jmeno):
+        self.__jmeno = jmeno
+
+class TestHrac(unittest.TestCase):
     
-    def prevod_vety(self):
-        self.assertEqual(textNaVelkaPismena("a b c"), "A B C")
-    
-    def prevod_cisel(self):
-        self.assertEqual(textNaVelkaPismena("123"), "")
-
-    def prazdny_vstup(self):
-        self.assertEqual(textNaVelkaPismena("", ""))
+    def test_vytvoreni(self):
+        hrac = Hrac(10)
+        self.assertEqual(hrac.get_jmeno(), "Honza")
 
 
 if __name__ == "__main__":
     unittest.main()
+
+
+"""Otestujte vytvoření objektu Hrac s výchozím jménem.
+Otestujte vytvoření objektu Hrac se zadaným jménem.
+Otestujte správné nastavení a získání věku.
+Otestujte správné nastavení a získání jména."""
