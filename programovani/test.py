@@ -1,90 +1,99 @@
+import logging
 import unittest
 
-class Teplomer:
-    def __init__(self, max_teplota=100):
-        """Inicializuje objekt teploměru s výchozí teplotou 0 a maximální teplotou."""
-        self.teplota = 0
-        self.max_teplota = max_teplota
 
-    def nastav_teplotu(self, nova_teplota):
-        """Nastaví aktuální teplotu na hodnotu nova_teplota.
-        Pokud přesáhne maximální teplotu, vyvolá výjimku."""
-        if nova_teplota > self.max_teplota:
-            raise ValueError("Teplota přesáhla maximální povolenou hodnotu!")
-        self.teplota = nova_teplota
+# --- 1. ČÁST: ZDE DOPLŇ NASTAVENÍ LOGOVÁNÍ ---
+# Potřebujeme:
+# - logger jménem "sklad_logger"
+# - FileHandler (sklad.log, level DEBUG)
+# - StreamHandler (konzole, level INFO)
+# - Formatter (např: '%(asctime)s - %(levelname)s - %(message)s')
+# - Přiřadit handlery k loggeru
 
-    def oteplit(self, stupne):
-        """Zvýší teplotu o zadaný počet stupňů.
-        Pokud výsledná teplota přesáhne maximální povolenou hodnotu, vyvolá výjimku."""
-        if self.teplota + stupne > self.max_teplota:
-            raise ValueError("Teplota přesáhla maximální povolenou hodnotu!")
-        self.teplota += stupne
+# ... tvůj kód pro logování ...
+# (Zatím si vytvoř jen proměnnou 'logger', abychom ji mohli používat dole)
+logger = logging.getLogger("sklad_logger") 
+logger.setLevel(logging.DEBUG)
 
-    def ochladit(self, stupne):
-        """Sníží teplotu o zadaný počet stupňů.
-        Teplota nesmí klesnout pod -273.15 °C."""
-        nova_teplota = self.teplota - stupne
-        self.teplota = max(nova_teplota, -273.15)
+file_handler = logging.FileHandler("sklad.log")
+file_handler.setLevel(logging.DEBUG)
+
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+file_handler.setFormatter(formatter)
+
+console_output = logging.StreamHandler()
+console_output.setLevel(logging.INFO)
+console_output.setFormatter(formatter)
+
+logger.addHandler(file_handler)
+logger.addHandler(console_output)
 
 
 
-class TestTeplomer(unittest.TestCase):
-    def test_inicializace(self):
-        teplomer = Teplomer()
-        self.assertEqual(teplomer.teplota, 0)
-        self.assertEqual(teplomer.max_teplota, 100)
+# --- 2. ČÁST: TŘÍDA SKLAD ---
+class Sklad:
+    def __init__(self):
+        self.zasoby = {}
+        logger.info("Vytvořen nový sklad.")
+
+    def naskladnit(self, nazev, pocet):
+        if pocet <= 0:
+            logger.warning(f"Pokus naskladnit neplatný počet: {pocet}")
+            return # Nic neděláme
+
+        logger.debug(f"Naskladňuji {pocet} ks zboží '{nazev}'")
         
-    def test_nastaveni_teploty(self):
-        teplomer = Teplomer()
-        teplomer.nastav_teplotu(50)
-        self.assertEqual(teplomer.teplota, 50)
-        self.assertRaises(ValueError, teplomer.nastav_teplotu, 150)
-        
-    def test_zvyseni_teploty(self):
-        teplomer = Teplomer()
-        teplomer.oteplit(50)
-        self.assertEqual(teplomer.teplota, 50)
-        teplomer.oteplit(50)
-        self.assertEqual(teplomer.teplota, 100)
-        self.assertRaises(ValueError, teplomer.oteplit, 150)
-        
-    def test_snizeni_teploty(self):
-        teplomer = Teplomer()
-        teplomer.ochladit(100)
-        self.assertEqual(teplomer.teplota, -100)
-        teplomer.ochladit(200)
-        self.assertEqual(teplomer.teplota, -273.15)
-        
-    
+        # Zde je logika pro přidání do slovníku
+        if nazev in self.zasoby:
+            self.zasoby[nazev] += pocet
+        else:
+            self.zasoby[nazev] = pocet
+            
+        logger.info(f"Naskladněno: {nazev}, nový stav: {self.zasoby[nazev]}")
 
-if __name__ == "__main__":
+    def vyskladnit(self, nazev, pocet):
+        logger.debug(f"Požadavek na vyskladnění: {nazev}, kusů: {pocet}")
+        if nazev not in self.zasoby:
+            logger.error(f"polozka '{nazev}' neni v zasobe")
+            raise ValueError("zbozi neni skladem")
+        elif self.zasoby[nazev]<pocet:
+            aktualni_stav = self.zasoby[nazev]
+            logger.warning(f"neni dostatek zbozi {nazev}, na sklade{aktualni_stav}, chcete{pocet}")
+            raise ValueError("nedostatek zbozi")
+        else:
+            
+        
+        # LOGICKÁ CHYBA + CHYBĚJÍCÍ OŠETŘENÍ
+        # Tady chybí kontrola, jestli zboží vůbec existuje!
+        # Tady chybí kontrola, jestli nejdu do mínusu!
+        
+            self.zasoby[nazev] -= pocet # Tohle spadne, pokud nazev neexistuje, nebo půjde do mínusu
+            
+            logger.info(f"Vyskladněno {pocet} ks '{nazev}'.")
+
+
+# --- 3. ČÁST: TESTY ---
+class TestSkladu(unittest.TestCase):
+    def setUp(self):
+        # Tato metoda se spustí před každým testem
+        self.sklad = Sklad()
+
+    def test_naskladneni(self):
+        self.sklad.naskladnit("Rohlík", 10)
+        self.assertEqual(self.sklad.zasoby["Rohlík"], 10)
+
+    def test_vyskladneni_ok(self):
+        self.sklad.naskladnit("Chleba", 5)
+        self.sklad.vyskladnit("Chleba", 2)
+        self.assertEqual(self.sklad.zasoby["Chleba"], 3)
+
+    # TENTO TEST ZATÍM SELŽE (protože metoda vyskladnit nemá ošetřenou chybu)
+    def test_vyskladneni_chyba(self):
+        self.sklad.naskladnit("Máslo", 1)
+        with self.assertRaises(ValueError):
+            self.sklad.vyskladnit("Máslo", 5) # Chceme vybrat víc, než máme
+
+if __name__ == '__main__':
+    # Spustí testy
     unittest.main()
-    
-    
-    
-    
-    
-    
-    
-    
-
-"""
-* 1 **Test inicializace:**
-
-Ověřte, že se teplota správně inicializuje na 0 a maximální teplota na zadanou hodnotu (výchozí je 100).
-
-* 2 **Test nastavení teploty:**
-
-Nastavte teplotu na hodnotu v povoleném rozmezí a ověřte, že se hodnota nastavila správně.
-Zkontrolujte, že pokus nastavit teplotu nad limit vyvolá ValueError.
-
-* 3 **Test zvýšení teploty:**
-
-Ověřte, že zvýšení teploty v rámci povoleného rozmezí proběhne správně.
-Zkontrolujte, že zvýšení teploty nad limit vyvolá ValueError.
-
-* 4 **Test snížení teploty:**
-
-Ověřte, že snížení teploty proběhne správně a nedostane se pod -273.15 °C.
-Pokud je požadavek snížení pod -273.15 °C, ověřte, že se teplota nastaví na -273.15 °C a ne méně.
-"""
