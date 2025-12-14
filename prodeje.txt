@@ -1,0 +1,11 @@
+2025-12-14 00:44:22,062 - kino_system - INFO - Bylo vytvoreno kino pro film film1 s kapacitou 100
+2025-12-14 00:44:22,062 - kino_system - DEBUG - Osoba chce koupit 100 listku
+2025-12-14 00:44:22,062 - kino_system - INFO - Prodano 100, zbyva0
+2025-12-14 00:44:22,062 - kino_system - DEBUG - Osoba chce koupit 1 listku
+2025-12-14 00:44:22,062 - kino_system - ERROR - Nedostatek listku, potreba 1, kapacita 100 
+2025-12-14 00:44:22,063 - kino_system - INFO - Bylo vytvoreno kino pro film film1 s kapacitou 100
+2025-12-14 00:44:22,063 - kino_system - DEBUG - Osoba chce koupit 10 listku
+2025-12-14 00:44:22,063 - kino_system - INFO - Prodano 10, zbyva90
+2025-12-14 00:44:22,063 - kino_system - INFO - Bylo vytvoreno kino pro film film1 s kapacitou 100
+2025-12-14 00:44:22,063 - kino_system - DEBUG - Osoba chce koupit 10 listku
+2025-12-14 00:44:22,063 - kino_system - INFO - Prodano 10, zbyva90
